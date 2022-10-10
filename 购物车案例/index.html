@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>购物车</title>
+    <style>
+      table {
+        border-collapse: collapse;
+      }
+      th,
+      td {
+        border: 1px solid #aaa;
+        padding: 10px;
+        text-align: center;
+      }
+      thead {
+        background-color: #f2f2f2;
+      }
+    </style>
+  </head>
+  <body>
+    <script
+      crossorigin
+      src="https://unpkg.com/react@18/umd/react.development.js"
+    ></script>
+    <script
+      crossorigin
+      src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"
+    ></script>
+    <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
+    <!-- <script src="./data.js"></script> -->
+    <script src="./format.js"></script>
+
+    <div id="root"></div>
+    <script type="text/babel">
+      class App extends React.Component {
+        constructor() {
+          super();
+          this.state = {
+            books: [
+              {
+                id: 1,
+                name: "算法",
+                publishTime: "2006-9",
+                price: 87,
+                count: 1,
+              },
+              {
+                id: 2,
+                name: "艺术",
+                publishTime: "2002-11",
+                price: 23,
+                count: 1,
+              },
+              {
+                id: 3,
+                name: "编程",
+                publishTime: "2033-8",
+                price: 54,
+                count: 1,
+              },
+              {
+                id: 4,
+                name: "代码大全",
+                publishTime: "2093-1",
+                price: 45,
+                count: 1,
+              },
+            ],
+          };
+        }
+        getTotalPrice() {
+          let totalPrice = this.state.books.reduce((preValue, item) => {
+            return preValue + item.price * item.count; //不需要解析price和count
+          }, 0);
+          return totalPrice;
+        }
+        increment(index) {
+          const newBooks = [...this.state.books]; //浅拷贝，不对原数据做修改
+          newBooks[index].count += 1;
+          this.setState({ books: newBooks }); //重新赋值
+        }
+        decrement(index) {
+          const newBooks = [...this.state.books]; //浅拷贝，不对原数据做修改
+          newBooks[index].count -= 1;
+          this.setState({ books: newBooks }); //重新赋值
+        }
+        removeItem(index) {
+          const newBooks = [...this.state.books];
+          newBooks.splice(index, 1);
+          this.setState({ books: newBooks });
+        }
+        renderBookList() {
+          const { books } = this.state; //需要结构代码
+          return (
+            <div>
+              <table>
+                <thead>
+                  <tr>
+                    <th>序号</th>
+                    <th>书名</th>
+                    <th>日期</th>
+                    <th>价格</th>
+                    <th>数量</th>
+                    <th>操作</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {books.map((item, index) => {
+                    return (
+                      <tr key="item.id">
+                        <td>{index + 1}</td>
+                        <td>{item.name}</td>
+                        <td>{item.publishTime}</td>
+                        <td>{formatPrice(item.price)}</td>
+                        <td>
+                          <button
+                            disabled={item.count <= 1}
+                            onClick={() => {
+                              this.decrement(index);
+                            }}
+                          >
+                            -
+                          </button>
+                          {item.count}
+                          <button
+                            onClick={() => {
+                              this.increment(index);
+                            }}
+                          >
+                            +
+                          </button>
+                        </td>
+                        <td>
+                          <button
+                            onClick={() => {
+                              this.removeItem(index);
+                            }}
+                          >
+                            删除
+                          </button>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+              <h2>总价格：{formatPrice(this.getTotalPrice())}</h2>
+            </div>
+          );
+        }
+        renderBookEmpty() {
+          return (
+            <div>
+              <h2>购物车没有啦！！！</h2>
+            </div>
+          );
+        }
+        render() {
+          const { books } = this.state;
+          //计算总价方法一：
+          /* let totalPrice = books.reduce((preValue, item) => {
+            return preValue + item.price * item.count;
+          }, 0);
+           */
+          //可以直接在render内部些函数，等于外部的getTotalPrice 函数，
+          //区别是这个需要先解析一下price和count。
+
+          //计算总价方法二:
+          // for(let i = 0 ; i< books.length;i++){
+          //   const book = books[i]
+          //   totalPrice =+ book.price * book.count
+          // }
+
+          return books.length ? this.renderBookList() : this.renderBookEmpty();
+        }
+      }
+      const root = ReactDOM.createRoot(document.querySelector("#root"));
+      root.render(<App />);
+    </script>
+  </body>
+</html>
